@@ -1,0 +1,23 @@
+# Исходники и конфиги
+src/
+tsconfig.json
+*.ts
+!*.d.ts
+
+# Git и окружение
+.git/
+.gitignore
+.env
+.env.*
+
+# Сборка и кэш
+node_modules/
+*.tsbuildinfo
+*.map
+
+# Прочее
+.DS_Store
+*.log
+.editorconfig
+.eslintrc*
+.prettierrc*

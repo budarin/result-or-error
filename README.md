@@ -1,2 +1,198 @@
-# result-or-error
-Typescript interface for functions that return results without generating try/catch hell
+# @budarin/result-or-error
+
+TypeScript types for returning **either** a successful `ResultOrErrorResult<T>` **or** an `ResultOrErrorError<E>` — without `try/catch`.
+
+## Installation
+
+```bash
+npm install @budarin/result-or-error
+```
+
+## Why use it
+
+The classic OOP-style approach is to throw an exception on any failure. That leads to **try/catch hell**: nested try/catch blocks, error handling scattered across the code, unclear control flow, and hard-to-follow code. In a functional style, throwing on every failure is a bad fit: it makes code noisy, hard to reason about, and prone to bugs.
+
+The modern functional approach for functions that may return an error instead of a result is to return **a single object** that has either a `result` field with data or an `error` field with the failure. Both cases are explicitly typed, control flow stays linear, and errors are handled right where the function is called — no exceptions and no nested try/catch.
+
+This package provides types that guarantee exactly one variant in the return value, make all fields read-only (`DeepReadonly`), and mark the "other" field as `never` in each branch for reliable type narrowing.
+
+### Before: try/catch hell
+
+```ts
+function parseUserId(input: string): number {
+    const n = parseInt(input, 10);
+
+    if (Number.isNaN(n)) {
+        throw new Error('Invalid number');
+    }
+
+    return n;
+}
+
+function loadUser(id: number): User {
+    const raw = fetchSync(`/users/${id}`);
+
+    if (!raw.ok) {
+        throw new Error('Network error');
+    }
+
+    const data = JSON.parse(raw.body);
+
+    if (!validateUser(data)) {
+        throw new Error('Invalid data');
+    }
+
+    return data;
+}
+
+// Call site — exceptions scattered, flow hard to follow
+let user: User;
+try {
+    const id = parseUserId(getInput());
+
+    try {
+        user = loadUser(id);
+    } catch (e) {
+        if (e instanceof SyntaxError) {
+            console.error('Bad JSON');
+        } else {
+            throw e;
+        }
+    }
+} catch (e) {
+    console.error('Failed:', e);
+    user = getDefaultUser();
+}
+```
+
+### After: a single result | error object
+
+```ts
+import type { ResultOrError } from '@budarin/result-or-error';
+
+function parseUserId(input: string): ResultOrError<number> {
+    const n = parseInt(input, 10);
+
+    if (Number.isNaN(n)) {
+        return { error: new Error('Invalid number') };
+    }
+
+    return { result: n };
+}
+
+function loadUser(id: number): ResultOrError<User> {
+    const raw = fetchSync(`/users/${id}`);
+
+    if (!raw.ok) {
+        return { error: new Error('Request failed') };
+    }
+
+    const data = JSON.parse(raw.body);
+
+    if (!validateUser(data)) {
+        return { error: new Error('Invalid data') };
+    }
+
+    return { result: data };
+}
+
+let user: User;
+
+// Call site — destructure and a simple check
+const { result: id, error: idError } = parseUserId(getInput());
+
+if (idError) {
+    console.error(idError.message);
+    user = getDefaultUser();
+} else {
+    const userResult = loadUser(id);
+    if (userResult.error) {
+        console.error(userResult.error.message);
+        user = getDefaultUser();
+    } else {
+        user = userResult.result;
+    }
+}
+```
+
+## API
+
+### `ResultOrErrorResult<T>`
+
+Success branch. Has `result: T`. The `error` field is absent in this branch (typed as `never`).
+
+```ts
+interface ResultOrErrorResult<T> {
+    result: T;
+    error?: never;
+}
+```
+
+### `ResultOrErrorError<E>`
+
+Error branch. Has `error` of type `Error & { data?: E }` (standard `Error` with optional extra data). The `result` field is absent in this branch (typed as `never`).
+
+```ts
+interface ResultOrErrorError<E> {
+    result?: never;
+    error: Error & { data?: E };
+}
+```
+
+### `ResultOrError<T, E>`
+
+Union of the two: `DeepReadonly<ResultOrErrorResult<T> | ResultOrErrorError<E>>`. All fields and nested objects are read-only.
+
+- Success only: `ResultOrError<T, never>`.
+- Error only: `ResultOrError<never, E>`.
+
+### `DeepReadonly<T>`
+
+Utility type that makes every property of `T` recursively `readonly`. Functions are left unchanged.
+
+## Examples
+
+### Basic usage
+
+```ts
+import type { ResultOrError } from '@budarin/result-or-error';
+
+function parseId(input: string): ResultOrError<number, string> {
+    const n = parseInt(input, 10);
+
+    if (Number.isNaN(n)) {
+        return {
+            error: { ...new Error('Invalid number'), data: input },
+        };
+    }
+    return { result: n };
+}
+
+const { result, error } = parseId('42');
+
+if (error) {
+    console.log(error.message, error.data); // Error & { data?: string }
+} else {
+    console.log(result); // number
+}
+```
+
+### Type narrowing
+
+After destructuring, the `if (error)` check narrows the type: in the error branch only `error` is in scope, in the success branch only `result`.
+
+### Success-only or error-only
+
+```ts
+import type { ResultOrError } from '@budarin/result-or-error';
+
+// Function returns only success (error branch unused)
+type OnlySuccess = ResultOrError<{ id: number }, never>;
+
+// Function returns only error (success branch unused)
+type OnlyError = ResultOrError<never, { code: string }>;
+```
+
+## License
+
+MIT

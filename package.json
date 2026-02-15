@@ -1,0 +1,45 @@
+{
+    "name": "@budarin/result-or-error",
+    "version": "1.0.0",
+    "description": "TypeScript types: result<T> | error<E> without try/catch",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/budarin/result-or-error"
+    },
+    "keywords": [
+        "typescript",
+        "result",
+        "error",
+        "union",
+        "either",
+        "no-try-catch"
+    ],
+    "author": "Вадим Бударин",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "default": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist",
+        "LICENSE",
+        "README.md"
+    ],
+    "devDependencies": {
+        "typescript": "^5.7.2",
+        "prettier": "^3.8.1"
+    },
+    "scripts": {
+        "build": "tsc",
+        "type-check": "tsc -b -noEmit",
+        "pnpm-install": "pnpm install",
+        "upgrade-deps": "sh scripts/upgrade-deps.sh",
+        "publish-package": "pnpm build && pnpm publish --access=public"
+    }
+}
