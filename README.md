@@ -1,6 +1,13 @@
 # @budarin/result-or-error
 
+[Русская версия](https://github.com/budarin/result-or-error/blob/master/README.ru.md)
+
 TypeScript types for returning **either** a successful `ResultOrErrorResult<T>` **or** an `ResultOrErrorError<E>` — without `try/catch`.
+
+[![npm](https://img.shields.io/npm/v/@budarin/result-or-error?color=cb0000)](https://www.npmjs.com/package/@budarin/result-or-error)
+[![npm](https://img.shields.io/npm/dt/@budarin/result-or-error)](https://www.npmjs.com/package/@budarin/result-or-error)
+[![GitHub](https://img.shields.io/github/license/budarin/result-or-error)](https://github.com/budarin/result-or-error)
+
 
 ## Installation
 
