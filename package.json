@@ -1,7 +1,7 @@
 {
     "name": "@budarin/result-or-error",
     "version": "1.0.0",
-    "description": "TypeScript types: result<T> | error<E> without try/catch",
+    "description": "TypeScript types only: ResultOrError<T,E> (result | error), no runtime, no try/catch",
     "repository": {
         "type": "git",
         "url": "https://github.com/budarin/result-or-error"
