@@ -14,7 +14,7 @@
         "either",
         "no-try-catch"
     ],
-    "author": "Вадим Бударин",
+    "author": "Vadim Budarin",
     "license": "MIT",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
