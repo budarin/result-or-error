@@ -1,6 +1,6 @@
 # @budarin/result-or-error
 
-Типы TypeScript для возврата **либо** успешного результата `ResultOrErrorResult<T>`, **либо** ошибки `ResultOrErrorError<E>` — без `try/catch`.
+Типы TypeScript для представления результата операции в виде объединения успешного значения `ResultOrErrorResult<T>` и ошибки `ResultOrErrorError<E>` без использования `try/catch`. Пакет также содержит хелпер `$try`, преобразующий синхронные и асинхронные исключения в значение типа `ResultOrError`.
 
 ## Установка
 
