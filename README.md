@@ -156,7 +156,7 @@ Union of the two: `DeepReadonly<ResultOrErrorResult<T> | ResultOrErrorError<E>>`
 
 Utility type that makes every property of `T` recursively `readonly`. Functions are left unchanged.
 
-### Helper `$try`
+### `Helper $try`
 
 `$try` is a small helper bridges the \"throw exceptions\" style and the `ResultOrError` style: instead of throwing, it converts a computation into a value of type `ResultOrError`.
 
@@ -222,10 +222,6 @@ type OnlyError = ResultOrError<never, { code: string }>;
 ### Using `$try`
 
 `$try` is useful in three common scenarios. In all cases it comes from this package:
-
-```ts
-import { $try } from '@budarin/result-or-error';
-```
 
 - **Promise directly** — e.g. `fetch`:
     - `const { result, error } = await $try(fetch('/api/user'));`
