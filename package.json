@@ -1,6 +1,6 @@
 {
     "name": "@budarin/result-or-error",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "TypeScript types only: ResultOrError<T,E> (result | error), no runtime, no try/catch",
     "repository": {
         "type": "git",
@@ -24,6 +24,11 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "default": "./dist/index.js"
+        },
+        "./try": {
+            "types": "./dist/try.d.ts",
+            "import": "./dist/try.js",
+            "default": "./dist/try.js"
         }
     },
     "files": [
