@@ -17,3 +17,5 @@ export interface ResultOrErrorError<E> {
 export type ResultOrError<T, E> = DeepReadonly<
     ResultOrErrorResult<T> | ResultOrErrorError<E>
 >;
+
+export { $try } from "./try.js";

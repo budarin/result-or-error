@@ -8,7 +8,6 @@ TypeScript types for returning **either** a successful `ResultOrErrorResult<T>` 
 [![npm](https://img.shields.io/npm/dt/@budarin/result-or-error)](https://www.npmjs.com/package/@budarin/result-or-error)
 [![GitHub](https://img.shields.io/github/license/budarin/result-or-error)](https://github.com/budarin/result-or-error)
 
-
 ## Installation
 
 ```bash
@@ -157,6 +156,26 @@ Union of the two: `DeepReadonly<ResultOrErrorResult<T> | ResultOrErrorError<E>>`
 
 Utility type that makes every property of `T` recursively `readonly`. Functions are left unchanged.
 
+### Helper `$try`
+
+`$try` is a small helper bridges the \"throw exceptions\" style and the `ResultOrError` style: instead of throwing, it converts a computation into a value of type `ResultOrError`.
+
+- Synchronous function:
+
+```ts
+function $try<T, E = Error>(fn: () => T): ResultOrError<T, E>;
+```
+
+- Asynchronous function or promise:
+
+```ts
+function $try<T, E = Error>(fn: () => Promise<T>): Promise<ResultOrError<T, E>>;
+
+function $try<T, E = Error>(promise: Promise<T>): Promise<ResultOrError<T, E>>;
+```
+
+At runtime, `$try` accepts either a function or a `Promise` and returns an object with either `result` or `error`.
+
 ## Examples
 
 ### Basic usage
@@ -198,6 +217,45 @@ type OnlySuccess = ResultOrError<{ id: number }, never>;
 
 // Function returns only error (success branch unused)
 type OnlyError = ResultOrError<never, { code: string }>;
+```
+
+### Using `$try`
+
+`$try` is useful in three common scenarios. In all cases it comes from this package:
+
+```ts
+import { $try } from '@budarin/result-or-error';
+```
+
+- **Promise directly** — e.g. `fetch`:
+    - `const { result, error } = await $try(fetch('/api/user'));`
+- **Synchronous code that may throw** (like `JSON.parse`) — you **must wrap it in a function**, otherwise the exception happens before `$try`:
+    - `const { result, error } = $try<User>(() => JSON.parse(json));`
+- **Function that returns a promise**:
+    - `const { result, error } = await $try(() => fetch('/api/user'));`
+
+Example:
+
+```ts
+import { $try } from '@budarin/result-or-error';
+
+// 1) JSON.parse with type hint
+const { result: user, error: parseError } = $try<User>(() => JSON.parse(json));
+
+if (parseError) {
+    console.error(parseError.message);
+} else {
+    // user: User
+}
+
+// 2) fetch as a promise
+const { result: response, error: fetchError } = await $try(fetch('/api/user'));
+
+if (fetchError) {
+    console.error(fetchError.message);
+} else {
+    console.log(await response.json());
+}
 ```
 
 ## License

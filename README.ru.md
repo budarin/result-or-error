@@ -152,6 +152,26 @@ interface ResultOrErrorError<E> {
 
 Утилитарный тип: рекурсивно делает все поля типа `T` только для чтения (`readonly`). Функции не изменяются.
 
+### Хэлпер-функция `$try`
+
+`$try` — небольшой хелпер который, помогает перейти от стиля «бросай исключения» к стилю `ResultOrError`: вместо выбрасывания исключения результат работы функции упаковывается в значение типа `ResultOrError`.
+
+- Синхронная функция:
+
+```ts
+function $try<T, E = Error>(fn: () => T): ResultOrError<T, E>;
+```
+
+- Асинхронная функция или промис:
+
+```ts
+function $try<T, E = Error>(fn: () => Promise<T>): Promise<ResultOrError<T, E>>;
+
+function $try<T, E = Error>(promise: Promise<T>): Promise<ResultOrError<T, E>>;
+```
+
+При выполнении `$try` получает либо функцию, либо `Promise` и возвращает объект, в котором есть либо `result`, либо `error`.
+
 ## Примеры
 
 ### Базовое использование
@@ -193,6 +213,45 @@ type OnlySuccess = ResultOrError<{ id: number }, never>;
 
 // Функция возвращает только ошибку (успех не используется)
 type OnlyError = ResultOrError<never, { code: string }>;
+```
+
+### Использование `$try`
+
+`$try` удобен в трёх типичных сценариях. Во всех случаях он импортируется из этого пакета:
+
+```ts
+import { $try } from '@budarin/result-or-error';
+```
+
+- **Промис напрямую** — например, `fetch`:
+    - `const { result, error } = await $try(fetch('/api/user'));`
+- **Синхронный код, который может кинуть** (вроде `JSON.parse`) — **обязательно оборачиваем в функцию**, иначе исключение вылетит до `$try`:
+    - `const { result, error } = $try<User>(() => JSON.parse(json));`
+- **Функция, возвращающая промис**:
+    - `const { result, error } = await $try(() => fetch('/api/user'));`
+
+Пример:
+
+```ts
+import { $try } from '@budarin/result-or-error';
+
+// 1) JSON.parse с подсказкой типа
+const { result: user, error: parseError } = $try<User>(() => JSON.parse(json));
+
+if (parseError) {
+    console.error(parseError.message);
+} else {
+    // user: User
+}
+
+// 2) fetch как промис
+const { result: response, error: fetchError } = await $try(fetch('/api/user'));
+
+if (fetchError) {
+    console.error(fetchError.message);
+} else {
+    console.log(await response.json());
+}
 ```
 
 ## Лицензия
