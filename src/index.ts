@@ -14,8 +14,8 @@ export interface ResultOrErrorError<E> {
     error: Error & { data?: E };
 }
 
-export type ResultOrError<T, E> = DeepReadonly<
+export type ResultOrError<T, E = never> = DeepReadonly<
     ResultOrErrorResult<T> | ResultOrErrorError<E>
 >;
 
-export { $try } from "./try.js";
+export { $try } from './try.js';
